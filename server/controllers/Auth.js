@@ -84,7 +84,7 @@ exports.signUp = async(req,res) => {
         if(password !== confirmPassword){
             res.status(400).json({
                 success:false,
-                message:"Password not match"
+                message:"Both Password not match"
             })
         }
 

@@ -15,7 +15,7 @@ exports.createCourse = async(req,res) =>{
         const thumbnail = req.files.thumbnailImage;
 
         // if not found anyone
-        if(!thumbnail || !courseName || !courseDescription || !whatYouWillLearn || !price || !tag ){
+        if(!thumbnail || !courseName || !courseDescription || !whatYouWillLearn || !price || !category ){
             return res.status(400).json({
                 success: false,
                 message: "Please fill all the fields"
@@ -37,7 +37,7 @@ exports.createCourse = async(req,res) =>{
                 });
         }
 
-        const categoryDetails = await Category.findById(tag);
+        const categoryDetails = await Category.findById(category);
         if(!categoryDetails){
             return res.status(404).json({
                 success: false,
@@ -52,16 +52,41 @@ exports.createCourse = async(req,res) =>{
         const newCourse = await Course.create({
             courseName,
             courseDescription,
+            // instructor:instructorDetails._id
+            instructor:userId,
             whatYouWillLearn,
             price,
             category:categoryDetails._id,
             thumbnail:thumbnailImg.secure_url,
-            instructor:instructorDetails._id
+           
+
         });
+
+        // // add new Course into user schema 
+        // await User.findByIdAndUpdate(
+        //     {id:instructorDetails._id},
+        //     {
+        //         $push:{
+        //             courses:newCourse._id
+        //           }
+        //     },
+        //     {new:true}
+        // )
+
+        // // add new tag into tag schema
+        // await Category.findByIdAndUpdate(
+        //     {id:tagDetails._id},
+        //     {
+        //         $push:{
+        //             courses:newCourse._id
+        //         }
+        //     },
+        //     {new:true}
+        // )
 
         // add new Course into user schema 
         await User.findByIdAndUpdate(
-            {id:instructorDetails._id},
+            {id:userId},
             {
                 $push:{
                     courses:newCourse._id
@@ -72,7 +97,7 @@ exports.createCourse = async(req,res) =>{
 
         // add new tag into tag schema
         await Category.findByIdAndUpdate(
-            {id:tagDetails._id},
+            {id:category},
             {
                 $push:{
                     courses:newCourse._id
@@ -99,3 +124,22 @@ exports.createCourse = async(req,res) =>{
 }
 
 // getAllCourse
+
+exports.showAllCourses = async(req,res) => {
+    try {
+        // Todo : check the parameter is always availabel
+        const allCourseDetails = await Course.find();
+
+        return res.status(200).json({
+            success:true,
+            message:"Get All Courses",
+        })
+    } catch (error) {
+        console.error("Error At Get All Courses:",error);
+        return res.status(500).json({
+            success:false,
+            message:error.message,
+        });
+    }
+}
+
