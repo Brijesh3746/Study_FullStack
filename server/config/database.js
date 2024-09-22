@@ -12,4 +12,4 @@ exports.connectDb = () =>{
         process.exit(1);
     })
 )
-}
+};
